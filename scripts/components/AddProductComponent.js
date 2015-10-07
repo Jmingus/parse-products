@@ -1,4 +1,5 @@
 var React = require('react');
+var ProductModel = require('../models/ProductModel');
 
 module.exports = React.createClass({
 	getInitialState: function() {
@@ -19,24 +20,26 @@ module.exports = React.createClass({
 						{errorElement}
 						<div className="row">
 							<div className="input-field col s12">
-								<input type="text" ref="email" className="validate" />
-								<label>Product Name</label>
+								<label htmlFor="productName">Product Name</label>
+								<input id="productName" type="text" ref="productName" className="validate" />
+
 							</div>
 						</div>
 						<div className="row">
 							<div className="input-field col s12">
-								<textarea id="textarea1" className="materialize-textarea"></textarea>
-								<label>Description</label>
+								<label htmlFor="textarea1">Description</label>
+								<textarea id="textarea1" className="materialize-textarea" ref="description"></textarea>
+
 							</div>
 						</div>
 						<div className="row">
 							<div className="input-field col s6">
-								<input type="number" className="validate" />
-								<label>Price</label>
+								<label htmlFor="price">Price</label>
+								<input  id="price" type="number" className="validate" ref="price" />
 							</div>
 							<div className="input-field col s6">
-								<select className="browser-default">
-									<option defaultValue="" disabled>Category</option>
+								<select className="browser-default" ref="type">
+									<option defaultValue="" disabled selected>Category</option>
 									<option defaultValue="books">Books</option>
 									<option defaultValue="electronics">Electronics</option>
 									<option defaultValue="clothing">Clothing</option>
@@ -53,5 +56,13 @@ module.exports = React.createClass({
 	},
 	onAddProduct: function(e) {
 		e.preventDefault();
+		var newProduct = new ProductModel({
+			productName: this.refs.productName.getDOMNode().value,
+			description: this.refs.description.getDOMNode().value,
+			price: this.refs.price.getDOMNode().value,
+			type: this.refs.type.getDOMNode().value
+		});
+		newProduct.save().then(this.props.dispatcher.trigger('productSubmit'));
+
 	}
 });

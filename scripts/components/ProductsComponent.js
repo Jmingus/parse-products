@@ -1,5 +1,7 @@
 var React = require('react');
-var Modal = require('react-modal')
+var Modal = require('react-modal');
+var Backbone = require('backbone');
+var _ = require('backbone/node_modules/underscore');
 var BooksComponent = require('./BooksComponent');
 var ElectronicsComponent = require('./ElectronicsComponent');
 var ClothingComponent = require('./ClothingComponent');
@@ -10,12 +12,19 @@ module.exports = React.createClass({
             modalIsOpen: false
       };
   },
+  componentWillMount: function(){
+    this.dispatcher = {};
+    _.extend(this.dispatcher, Backbone.Events);
+    this.dispatcher.on('productSubmit', () => {
+      this.closeModal()
+    })
+  },
   openModal: function() {
     this.setState({modalIsOpen: true});
   },
   closeModal: function() {
     this.setState({modalIsOpen: false});
-    this.props.router('products',{trigger: true})
+    this.props.router.navigate('products',{trigger: true})
   },
   render: function(){
 
@@ -26,7 +35,7 @@ module.exports = React.createClass({
           <a className="waves-effect waves-light btn modal-trigger" onClick={this.openModal} href="#addProduct">Add Product</a>
           <Modal isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
             <div className="modal-content">
-              <AddProductComponent />
+              <AddProductComponent dispatcher={this.dispatcher} />
             </div>
           </Modal>
           <div className="row">
