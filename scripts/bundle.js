@@ -34322,10 +34322,11 @@ module.exports = React.createClass({
 	},
 	onAddProduct: function onAddProduct(e) {
 		e.preventDefault();
+		var productPrice = parseInt(this.refs.price.getDOMNode().value);
 		var newProduct = new ProductModel({
 			productName: this.refs.productName.getDOMNode().value,
 			description: this.refs.description.getDOMNode().value,
-			price: this.refs.price.getDOMNode().value,
+			price: productPrice,
 			type: this.refs.type.getDOMNode().value
 		});
 		newProduct.save().then(this.props.dispatcher.trigger('productSubmit'));
@@ -34383,6 +34384,26 @@ module.exports = React.createClass({
         'div',
         { className: 'row' },
         React.createElement(
+          'form',
+          { action: '#' },
+          React.createElement(
+            'p',
+            null,
+            React.createElement('input', { name: 'group1', type: 'radio', id: 'newest', onClick: this.filterNewest }),
+            React.createElement(
+              'label',
+              { htmlFor: 'newest' },
+              'Newest'
+            ),
+            React.createElement('input', { name: 'group1', type: 'radio', id: 'cheapest', onClick: this.filterCheapest }),
+            React.createElement(
+              'label',
+              { htmlFor: 'cheapest' },
+              'Cheapest'
+            )
+          )
+        ),
+        React.createElement(
           'table',
           { className: 'bordered striped responsive-table' },
           React.createElement(
@@ -34423,6 +34444,24 @@ module.exports = React.createClass({
     this.query.equalTo('type', 'Books');
     this.query.find().then(function (product) {
       _this.setState({ product: product });
+    }, function (err) {
+      console.log(err);
+    });
+  },
+  filterNewest: function filterNewest() {
+    var _this2 = this;
+
+    this.query.descending("createdAt").limit(10).find().then(function (product) {
+      _this2.setState({ product: product });
+    }, function (err) {
+      console.log(err);
+    });
+  },
+  filterCheapest: function filterCheapest() {
+    var _this3 = this;
+
+    this.query.ascending("price").limit(10).find().then(function (product) {
+      _this3.setState({ product: product });
     }, function (err) {
       console.log(err);
     });

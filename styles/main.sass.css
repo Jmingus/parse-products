@@ -7,3 +7,6 @@ nav {
 
 .tabs {
   margin-bottom: 1em; }
+
+form p label {
+  margin-right: 2em; }
