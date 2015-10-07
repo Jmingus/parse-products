@@ -36,7 +36,7 @@ module.exports = React.createClass({
 							</div>
 							<div className="input-field col s6">
 								<select className="browser-default">
-									<option defaultValue="" disabled selected>Category</option>
+									<option defaultValue="" disabled>Category</option>
 									<option defaultValue="books">Books</option>
 									<option defaultValue="electronics">Electronics</option>
 									<option defaultValue="clothing">Clothing</option>
