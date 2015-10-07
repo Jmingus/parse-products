@@ -34333,37 +34333,103 @@ module.exports = React.createClass({
 });
 
 },{"../models/ProductModel":189,"react":178}],180:[function(require,module,exports){
-"use strict";
+'use strict';
 
 var React = require('react');
+var ProductModel = require('../models/ProductModel');
 
 module.exports = React.createClass({
-	displayName: "exports",
+  displayName: 'exports',
 
-	getInitialState: function getInitialState() {
-		return {
-			books: []
-		};
-	},
-	componentWillMount: function componentWillMount() {},
-	render: function render() {
-		return React.createElement(
-			"div",
-			{ className: "container" },
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"h1",
-					null,
-					"Books"
-				)
-			)
-		);
-	}
+  getInitialState: function getInitialState() {
+    return {
+      product: []
+    };
+  },
+  componentWillMount: function componentWillMount() {
+    var self = this;
+    this.query = new Parse.Query(ProductModel);
+    this.fetch();
+    this.props.dispatcher.on('productSubmit', function () {
+      self.fetch();
+    });
+  },
+  render: function render() {
+    var bookElements = this.state.product.map(function (book) {
+      return React.createElement(
+        'tr',
+        { key: book.id },
+        React.createElement(
+          'td',
+          null,
+          book.get('productName')
+        ),
+        React.createElement(
+          'td',
+          null,
+          book.get('description')
+        ),
+        React.createElement(
+          'td',
+          null,
+          book.get('price')
+        )
+      );
+    });
+    return React.createElement(
+      'div',
+      { className: 'container' },
+      React.createElement(
+        'div',
+        { className: 'row' },
+        React.createElement(
+          'table',
+          { className: 'bordered striped responsive-table' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                { 'data-field': 'name' },
+                'Book Name'
+              ),
+              React.createElement(
+                'th',
+                { 'data-field': 'description' },
+                'Book Description'
+              ),
+              React.createElement(
+                'th',
+                { 'data-field': 'price' },
+                'Book Price'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            bookElements
+          )
+        )
+      )
+    );
+  },
+  fetch: function fetch() {
+    var _this = this;
+
+    this.query.equalTo('type', 'Books');
+    this.query.find().then(function (product) {
+      _this.setState({ product: product });
+    }, function (err) {
+      console.log(err);
+    });
+  }
 });
 
-},{"react":178}],181:[function(require,module,exports){
+},{"../models/ProductModel":189,"react":178}],181:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -34628,11 +34694,13 @@ module.exports = React.createClass({
 var React = require('react');
 var Modal = require('react-modal');
 var Backbone = require('backbone');
+var $ = require('jquery');
 var _ = require('backbone/node_modules/underscore');
 var BooksComponent = require('./BooksComponent');
 var ElectronicsComponent = require('./ElectronicsComponent');
 var ClothingComponent = require('./ClothingComponent');
 var AddProductComponent = require('./AddProductComponent');
+
 module.exports = React.createClass({
   displayName: 'exports',
 
@@ -34640,6 +34708,11 @@ module.exports = React.createClass({
     return {
       modalIsOpen: false
     };
+  },
+  componentDidMount: function componentDidMount() {
+    $(document).ready(function () {
+      $('ul.tabs').tabs();
+    });
   },
   componentWillMount: function componentWillMount() {
     var _this = this;
@@ -34692,7 +34765,7 @@ module.exports = React.createClass({
             { className: 'col s12' },
             React.createElement(
               'ul',
-              { className: 'tabs' },
+              { className: 'tabs', id: 'tabs' },
               React.createElement(
                 'li',
                 { className: 'tab col s3' },
@@ -34725,17 +34798,17 @@ module.exports = React.createClass({
           React.createElement(
             'div',
             { id: 'tab-book', className: 'col s12' },
-            React.createElement(BooksComponent, null)
+            React.createElement(BooksComponent, { dispatcher: this.dispatcher })
           ),
           React.createElement(
             'div',
             { id: 'tab-electronic', className: 'col s12' },
-            React.createElement(ElectronicsComponent, null)
+            React.createElement(ElectronicsComponent, { dispatcher: this.dispatcher })
           ),
           React.createElement(
             'div',
             { id: 'tab-clothing', className: 'col s12' },
-            React.createElement(ClothingComponent, null)
+            React.createElement(ClothingComponent, { dispatcher: this.dispatcher })
           )
         )
       )
@@ -34743,7 +34816,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./AddProductComponent":179,"./BooksComponent":180,"./ClothingComponent":181,"./ElectronicsComponent":182,"backbone":1,"backbone/node_modules/underscore":2,"react":178,"react-modal":22}],187:[function(require,module,exports){
+},{"./AddProductComponent":179,"./BooksComponent":180,"./ClothingComponent":181,"./ElectronicsComponent":182,"backbone":1,"backbone/node_modules/underscore":2,"jquery":4,"react":178,"react-modal":22}],187:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
