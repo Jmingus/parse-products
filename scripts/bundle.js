@@ -34642,6 +34642,7 @@ module.exports = React.createClass({
 
 var React = require('react');
 var Backbone = require('backbone');
+var $ = require('jquery');
 
 module.exports = React.createClass({
 	displayName: 'exports',
@@ -34651,6 +34652,11 @@ module.exports = React.createClass({
 
 		this.props.router.on('route', function () {
 			_this.forceUpdate();
+		});
+	},
+	componentDidMount: function componentDidMount() {
+		$(document).ready(function () {
+			$('.button-collapse').sideNav();
 		});
 	},
 	render: function render() {
@@ -34710,12 +34716,26 @@ module.exports = React.createClass({
 			{ className: 'nav-wrapper' },
 			React.createElement(
 				'a',
-				{ href: '#', className: 'brand-logo left' },
-				'Parse-Products'
+				{ href: '#!', className: 'brand-logo' },
+				'Parse Products'
+			),
+			React.createElement(
+				'a',
+				{ href: '#', 'data-activates': 'mobile-demo', className: 'button-collapse' },
+				React.createElement(
+					'i',
+					{ className: 'material-icons' },
+					'menu'
+				)
 			),
 			React.createElement(
 				'ul',
-				{ id: 'nav-mobile', className: 'right' },
+				{ className: 'right hide-on-med-and-down' },
+				links
+			),
+			React.createElement(
+				'ul',
+				{ className: 'side-nav', id: 'mobile-demo' },
 				links
 			)
 		);
@@ -34727,7 +34747,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"react":178}],186:[function(require,module,exports){
+},{"backbone":1,"jquery":4,"react":178}],186:[function(require,module,exports){
 'use strict';
 
 var React = require('react');

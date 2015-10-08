@@ -1,5 +1,6 @@
 var React = require('react');
 var Backbone = require('backbone');
+var $ = require('jquery');
 
 module.exports = React.createClass({
 	componentWillMount: function() {
@@ -7,6 +8,12 @@ module.exports = React.createClass({
 			this.forceUpdate();
 		});
 	},
+    componentDidMount: function() {
+        $(document).ready(function(){
+            $('.button-collapse').sideNav();
+        })
+
+    },
 	render: function() {
 		var currentPage = Backbone.history.getFragment();
 
@@ -25,12 +32,16 @@ module.exports = React.createClass({
 
 
 		return (
-			<div className="nav-wrapper">
-				<a href="#" className="brand-logo left">Parse-Products</a>
-				<ul id="nav-mobile" className="right">
-					{links}
-				</ul>
-			</div>
+                <div className="nav-wrapper">
+                    <a href="#!" className="brand-logo">Parse Products</a>
+                    <a href="#" data-activates="mobile-demo" className="button-collapse"><i className="material-icons">menu</i></a>
+                    <ul className="right hide-on-med-and-down">
+                        {links}
+                    </ul>
+                    <ul className="side-nav" id="mobile-demo">
+                        {links}
+                    </ul>
+                </div>
 		);
 	},
 	onLogout: function(e) {
