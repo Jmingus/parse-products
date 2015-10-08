@@ -49,4 +49,4 @@ module.exports = React.createClass({
 		Parse.User.logOut();
 		this.props.router.navigate('', {trigger: true});
 	}
-})
+});

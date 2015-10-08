@@ -34344,7 +34344,8 @@ module.exports = React.createClass({
 
   getInitialState: function getInitialState() {
     return {
-      product: []
+      bookProduct: [],
+      page: 1
     };
   },
   componentWillMount: function componentWillMount() {
@@ -34356,7 +34357,7 @@ module.exports = React.createClass({
     });
   },
   render: function render() {
-    var bookElements = this.state.product.map(function (book) {
+    var bookElements = this.state.bookProduct.map(function (book) {
       return React.createElement(
         'tr',
         { key: book.id },
@@ -34385,7 +34386,7 @@ module.exports = React.createClass({
         { className: 'row' },
         React.createElement(
           'form',
-          { action: '#' },
+          { id: 'group1' },
           React.createElement(
             'p',
             null,
@@ -34435,6 +34436,55 @@ module.exports = React.createClass({
             bookElements
           )
         )
+      ),
+      React.createElement(
+        'ul',
+        { className: 'pagination' },
+        React.createElement(
+          'li',
+          { 'class': 'active' },
+          React.createElement(
+            'a',
+            { href: '#!', value: '1' },
+            '1'
+          )
+        ),
+        React.createElement(
+          'li',
+          { 'class': 'waves-effect' },
+          React.createElement(
+            'a',
+            { href: '#!', value: '2' },
+            '2'
+          )
+        ),
+        React.createElement(
+          'li',
+          { 'class': 'waves-effect' },
+          React.createElement(
+            'a',
+            { href: '#!', value: '3' },
+            '3'
+          )
+        ),
+        React.createElement(
+          'li',
+          { 'class': 'waves-effect' },
+          React.createElement(
+            'a',
+            { href: '#!', value: '4' },
+            '4'
+          )
+        ),
+        React.createElement(
+          'li',
+          { 'class': 'waves-effect' },
+          React.createElement(
+            'a',
+            { href: '#!', value: '5' },
+            '5'
+          )
+        )
       )
     );
   },
@@ -34442,8 +34492,8 @@ module.exports = React.createClass({
     var _this = this;
 
     this.query.equalTo('type', 'Books');
-    this.query.find().then(function (product) {
-      _this.setState({ product: product });
+    this.query.find().then(function (bookProduct) {
+      _this.setState({ bookProduct: bookProduct });
     }, function (err) {
       console.log(err);
     });
@@ -34451,8 +34501,8 @@ module.exports = React.createClass({
   filterNewest: function filterNewest() {
     var _this2 = this;
 
-    this.query.descending("createdAt").limit(10).find().then(function (product) {
-      _this2.setState({ product: product });
+    this.query.descending("createdAt").limit(10).find().then(function (bookProduct) {
+      _this2.setState({ bookProduct: bookProduct });
     }, function (err) {
       console.log(err);
     });
@@ -34460,8 +34510,8 @@ module.exports = React.createClass({
   filterCheapest: function filterCheapest() {
     var _this3 = this;
 
-    this.query.ascending("price").limit(10).find().then(function (product) {
-      _this3.setState({ product: product });
+    this.query.ascending("price").limit(10).find().then(function (bookProduct) {
+      _this3.setState({ bookProduct: bookProduct });
     }, function (err) {
       console.log(err);
     });
@@ -34469,56 +34519,376 @@ module.exports = React.createClass({
 });
 
 },{"../models/ProductModel":190,"react":178}],181:[function(require,module,exports){
-"use strict";
+'use strict';
 
 var React = require('react');
+var ProductModel = require('../models/ProductModel');
 
 module.exports = React.createClass({
-	displayName: "exports",
+    displayName: 'exports',
 
-	render: function render() {
-		return React.createElement(
-			"div",
-			{ className: "container" },
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"h1",
-					null,
-					"Clothing"
-				)
-			)
-		);
-	}
+    getInitialState: function getInitialState() {
+        return {
+            clothingProduct: [],
+            page: 1
+        };
+    },
+    componentWillMount: function componentWillMount() {
+        var self = this;
+        this.query = new Parse.Query(ProductModel);
+        this.fetch();
+        this.props.dispatcher.on('productSubmit', function () {
+            self.fetch();
+        });
+    },
+    render: function render() {
+        var clothingElements = this.state.clothingProduct.map(function (clothing) {
+            return React.createElement(
+                'tr',
+                { key: clothing.id },
+                React.createElement(
+                    'td',
+                    null,
+                    clothing.get('productName')
+                ),
+                React.createElement(
+                    'td',
+                    null,
+                    clothing.get('description')
+                ),
+                React.createElement(
+                    'td',
+                    null,
+                    clothing.get('price')
+                )
+            );
+        });
+        return React.createElement(
+            'div',
+            { className: 'container' },
+            React.createElement(
+                'div',
+                { className: 'row' },
+                React.createElement(
+                    'form',
+                    { id: 'group1' },
+                    React.createElement(
+                        'p',
+                        null,
+                        React.createElement('input', { name: 'group1', type: 'radio', id: 'newest', onClick: this.filterNewest }),
+                        React.createElement(
+                            'label',
+                            { htmlFor: 'newest' },
+                            'Newest'
+                        ),
+                        React.createElement('input', { name: 'group1', type: 'radio', id: 'cheapest', onClick: this.filterCheapest }),
+                        React.createElement(
+                            'label',
+                            { htmlFor: 'cheapest' },
+                            'Cheapest'
+                        )
+                    )
+                ),
+                React.createElement(
+                    'table',
+                    { className: 'bordered striped responsive-table' },
+                    React.createElement(
+                        'thead',
+                        null,
+                        React.createElement(
+                            'tr',
+                            null,
+                            React.createElement(
+                                'th',
+                                { 'data-field': 'name' },
+                                'Clothing Name'
+                            ),
+                            React.createElement(
+                                'th',
+                                { 'data-field': 'description' },
+                                'Clothing Description'
+                            ),
+                            React.createElement(
+                                'th',
+                                { 'data-field': 'price' },
+                                'Clothing Price'
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        'tbody',
+                        null,
+                        clothingElements
+                    )
+                )
+            ),
+            React.createElement(
+                'ul',
+                { className: 'pagination' },
+                React.createElement(
+                    'li',
+                    { 'class': 'active' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '1' },
+                        '1'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '2' },
+                        '2'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '3' },
+                        '3'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '4' },
+                        '4'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '5' },
+                        '5'
+                    )
+                )
+            )
+        );
+    },
+    fetch: function fetch() {
+        var _this = this;
+
+        this.query.equalTo('type', 'Clothing');
+        this.query.find().then(function (clothingProduct) {
+            _this.setState({ clothingProduct: clothingProduct });
+        }, function (err) {
+            console.log(err);
+        });
+    },
+    filterNewest: function filterNewest() {
+        var _this2 = this;
+
+        this.query.descending("createdAt").limit(10).find().then(function (clothingProduct) {
+            _this2.setState({ clothingProduct: clothingProduct });
+        }, function (err) {
+            console.log(err);
+        });
+    },
+    filterCheapest: function filterCheapest() {
+        var _this3 = this;
+
+        this.query.ascending("price").limit(10).find().then(function (clothingProduct) {
+            _this3.setState({ clothingProduct: clothingProduct });
+        }, function (err) {
+            console.log(err);
+        });
+    }
 });
 
-},{"react":178}],182:[function(require,module,exports){
-"use strict";
+},{"../models/ProductModel":190,"react":178}],182:[function(require,module,exports){
+'use strict';
 
 var React = require('react');
+var ProductModel = require('../models/ProductModel');
 
 module.exports = React.createClass({
-	displayName: "exports",
+    displayName: 'exports',
 
-	render: function render() {
-		return React.createElement(
-			"div",
-			{ className: "container" },
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"h1",
-					null,
-					"Electronics"
-				)
-			)
-		);
-	}
+    getInitialState: function getInitialState() {
+        return {
+            electronicProduct: [],
+            page: 1
+        };
+    },
+    componentWillMount: function componentWillMount() {
+        var self = this;
+        this.query = new Parse.Query(ProductModel);
+        this.fetch();
+        this.props.dispatcher.on('productSubmit', function () {
+            self.fetch();
+        });
+    },
+    render: function render() {
+        var electronicElements = this.state.electronicProduct.map(function (electronic) {
+            return React.createElement(
+                'tr',
+                { key: electronic.id },
+                React.createElement(
+                    'td',
+                    null,
+                    electronic.get('productName')
+                ),
+                React.createElement(
+                    'td',
+                    null,
+                    electronic.get('description')
+                ),
+                React.createElement(
+                    'td',
+                    null,
+                    electronic.get('price')
+                )
+            );
+        });
+        return React.createElement(
+            'div',
+            { className: 'container' },
+            React.createElement(
+                'div',
+                { className: 'row' },
+                React.createElement(
+                    'form',
+                    { id: 'group2' },
+                    React.createElement(
+                        'p',
+                        null,
+                        React.createElement('input', { name: 'group2', type: 'radio', id: 'newest', onClick: this.filterNewest }),
+                        React.createElement(
+                            'label',
+                            { htmlFor: 'newest' },
+                            'Newest'
+                        ),
+                        React.createElement('input', { name: 'group2', type: 'radio', id: 'cheapest', onClick: this.filterCheapest }),
+                        React.createElement(
+                            'label',
+                            { htmlFor: 'cheapest' },
+                            'Cheapest'
+                        )
+                    )
+                ),
+                React.createElement(
+                    'table',
+                    { className: 'bordered striped responsive-table' },
+                    React.createElement(
+                        'thead',
+                        null,
+                        React.createElement(
+                            'tr',
+                            null,
+                            React.createElement(
+                                'th',
+                                { 'data-field': 'name' },
+                                'Electronic Name'
+                            ),
+                            React.createElement(
+                                'th',
+                                { 'data-field': 'description' },
+                                'Electronic Description'
+                            ),
+                            React.createElement(
+                                'th',
+                                { 'data-field': 'price' },
+                                'Electronic Price'
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        'tbody',
+                        null,
+                        electronicElements
+                    )
+                )
+            ),
+            React.createElement(
+                'ul',
+                { className: 'pagination' },
+                React.createElement(
+                    'li',
+                    { 'class': 'active' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '1' },
+                        '1'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '2' },
+                        '2'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '3' },
+                        '3'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '4' },
+                        '4'
+                    )
+                ),
+                React.createElement(
+                    'li',
+                    { 'class': 'waves-effect' },
+                    React.createElement(
+                        'a',
+                        { href: '#!', value: '5' },
+                        '5'
+                    )
+                )
+            )
+        );
+    },
+    fetch: function fetch() {
+        var _this = this;
+
+        this.query.equalTo('type', 'Electronics');
+        this.query.find().then(function (electronicProduct) {
+            _this.setState({ electronicProduct: electronicProduct });
+        }, function (err) {
+            console.log(err);
+        });
+    },
+    filterNewest: function filterNewest() {
+        var _this2 = this;
+
+        this.query.descending("createdAt").limit(10).find().then(function (electronicProduct) {
+            _this2.setState({ electronicProduct: electronicProduct });
+        }, function (err) {
+            console.log(err);
+        });
+    },
+    filterCheapest: function filterCheapest() {
+        var _this3 = this;
+
+        this.query.ascending("price").limit(10).find().then(function (electronicProduct) {
+            _this3.setState({ electronicProduct: electronicProduct });
+        }, function (err) {
+            console.log(err);
+        });
+    }
 });
 
-},{"react":178}],183:[function(require,module,exports){
+},{"../models/ProductModel":190,"react":178}],183:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
