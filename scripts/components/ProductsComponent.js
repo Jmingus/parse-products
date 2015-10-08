@@ -7,11 +7,14 @@ var BooksComponent = require('./BooksComponent');
 var ElectronicsComponent = require('./ElectronicsComponent');
 var ClothingComponent = require('./ClothingComponent');
 var AddProductComponent = require('./AddProductComponent');
-
+var ProductModel = require('../models/ProductModel');
+var SearchComponent = require('./SearchComponent')
 module.exports = React.createClass({
   getInitialState: function() {
       return {
-            modalIsOpen: false
+            modalIsOpen: false,
+            product: [],
+            showResults: false
       };
   },
   componentDidMount: function() {
@@ -25,7 +28,8 @@ module.exports = React.createClass({
     _.extend(this.dispatcher, Backbone.Events);
     this.dispatcher.on('productSubmit', () => {
       this.closeModal()
-    })
+    });
+    this.query = new Parse.Query(ProductModel)
   },
   openModal: function() {
     this.setState({modalIsOpen: true});
@@ -35,12 +39,23 @@ module.exports = React.createClass({
     this.props.router.navigate('products',{trigger: true})
   },
   render: function(){
-
+    var searchResult = this.state.product.map(function(result){
+      return (<SearchComponent result={result}/>)
+    });
     return(
       <div className="container">
         <div className="row">
           <h4>Products</h4>
-          <a className="waves-effect waves-light btn modal-trigger" onClick={this.openModal} href="#addProduct">Add Product</a>
+          <div className="row">
+            <div className="col s3">
+              <a className="waves-effect waves-light btn modal-trigger" onClick={this.openModal} href="#addProduct">Add Product</a>
+            </div>
+            <div className="col s9">
+              <form onSubmit={this.searchFilter}>
+                <input type="text" ref="search" id="search" placeholder="Search" />
+              </form>
+                {this.state.showResults ? {searchResult} : null }
+          </div>
           <Modal isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
             <div className="modal-content">
               <AddProductComponent dispatcher={this.dispatcher} />
@@ -60,6 +75,20 @@ module.exports = React.createClass({
           </div>
         </div>
       </div>
+    </div>
     )
-  }
-})
+  },
+  searchFilter: function(e){
+    e.preventDefault();
+    var searchInput = this.refs.search.getDOMNode().value;
+    this.query.equalTo('productName', searchInput);
+    this.query.find().then(
+    (product) => {
+    this.setState({product: product})
+    },
+    (err) => {
+        console.log(err)
+    });
+    this.setState({ showResults: true})
+    }
+});

@@ -34333,7 +34333,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/ProductModel":189,"react":178}],180:[function(require,module,exports){
+},{"../models/ProductModel":190,"react":178}],180:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -34468,7 +34468,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../models/ProductModel":189,"react":178}],181:[function(require,module,exports){
+},{"../models/ProductModel":190,"react":178}],181:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -34739,13 +34739,16 @@ var BooksComponent = require('./BooksComponent');
 var ElectronicsComponent = require('./ElectronicsComponent');
 var ClothingComponent = require('./ClothingComponent');
 var AddProductComponent = require('./AddProductComponent');
-
+var ProductModel = require('../models/ProductModel');
+var SearchComponent = require('./SearchComponent');
 module.exports = React.createClass({
   displayName: 'exports',
 
   getInitialState: function getInitialState() {
     return {
-      modalIsOpen: false
+      modalIsOpen: false,
+      product: [],
+      showResults: false
     };
   },
   componentDidMount: function componentDidMount() {
@@ -34761,6 +34764,7 @@ module.exports = React.createClass({
     this.dispatcher.on('productSubmit', function () {
       _this.closeModal();
     });
+    this.query = new Parse.Query(ProductModel);
   },
   openModal: function openModal() {
     this.setState({ modalIsOpen: true });
@@ -34770,7 +34774,9 @@ module.exports = React.createClass({
     this.props.router.navigate('products', { trigger: true });
   },
   render: function render() {
-
+    var searchResult = this.state.product.map(function (result) {
+      return React.createElement(SearchComponent, { result: result });
+    });
     return React.createElement(
       'div',
       { className: 'container' },
@@ -34783,79 +34789,110 @@ module.exports = React.createClass({
           'Products'
         ),
         React.createElement(
-          'a',
-          { className: 'waves-effect waves-light btn modal-trigger', onClick: this.openModal, href: '#addProduct' },
-          'Add Product'
-        ),
-        React.createElement(
-          Modal,
-          { isOpen: this.state.modalIsOpen, onRequestClose: this.closeModal },
-          React.createElement(
-            'div',
-            { className: 'modal-content' },
-            React.createElement(AddProductComponent, { dispatcher: this.dispatcher })
-          )
-        ),
-        React.createElement(
           'div',
           { className: 'row' },
           React.createElement(
             'div',
-            { className: 'col s12' },
+            { className: 'col s3' },
             React.createElement(
-              'ul',
-              { className: 'tabs', id: 'tabs' },
-              React.createElement(
-                'li',
-                { className: 'tab col s3' },
-                React.createElement(
-                  'a',
-                  { href: '#tab-book' },
-                  'Books'
-                )
-              ),
-              React.createElement(
-                'li',
-                { className: 'tab col s3' },
-                React.createElement(
-                  'a',
-                  { href: '#tab-electronic' },
-                  'Electronics'
-                )
-              ),
-              React.createElement(
-                'li',
-                { className: 'tab col s3' },
-                React.createElement(
-                  'a',
-                  { href: '#tab-clothing' },
-                  'Clothing'
-                )
-              )
+              'a',
+              { className: 'waves-effect waves-light btn modal-trigger', onClick: this.openModal, href: '#addProduct' },
+              'Add Product'
             )
           ),
           React.createElement(
             'div',
-            { id: 'tab-book', className: 'col s12' },
-            React.createElement(BooksComponent, { dispatcher: this.dispatcher })
+            { className: 'col s9' },
+            React.createElement(
+              'form',
+              { onSubmit: this.searchFilter },
+              React.createElement('input', { type: 'text', ref: 'search', id: 'search', placeholder: 'Search' })
+            ),
+            this.state.showResults ? { searchResult: searchResult } : null
+          ),
+          React.createElement(
+            Modal,
+            { isOpen: this.state.modalIsOpen, onRequestClose: this.closeModal },
+            React.createElement(
+              'div',
+              { className: 'modal-content' },
+              React.createElement(AddProductComponent, { dispatcher: this.dispatcher })
+            )
           ),
           React.createElement(
             'div',
-            { id: 'tab-electronic', className: 'col s12' },
-            React.createElement(ElectronicsComponent, { dispatcher: this.dispatcher })
-          ),
-          React.createElement(
-            'div',
-            { id: 'tab-clothing', className: 'col s12' },
-            React.createElement(ClothingComponent, { dispatcher: this.dispatcher })
+            { className: 'row' },
+            React.createElement(
+              'div',
+              { className: 'col s12' },
+              React.createElement(
+                'ul',
+                { className: 'tabs', id: 'tabs' },
+                React.createElement(
+                  'li',
+                  { className: 'tab col s3' },
+                  React.createElement(
+                    'a',
+                    { href: '#tab-book' },
+                    'Books'
+                  )
+                ),
+                React.createElement(
+                  'li',
+                  { className: 'tab col s3' },
+                  React.createElement(
+                    'a',
+                    { href: '#tab-electronic' },
+                    'Electronics'
+                  )
+                ),
+                React.createElement(
+                  'li',
+                  { className: 'tab col s3' },
+                  React.createElement(
+                    'a',
+                    { href: '#tab-clothing' },
+                    'Clothing'
+                  )
+                )
+              )
+            ),
+            React.createElement(
+              'div',
+              { id: 'tab-book', className: 'col s12' },
+              React.createElement(BooksComponent, { dispatcher: this.dispatcher })
+            ),
+            React.createElement(
+              'div',
+              { id: 'tab-electronic', className: 'col s12' },
+              React.createElement(ElectronicsComponent, { dispatcher: this.dispatcher })
+            ),
+            React.createElement(
+              'div',
+              { id: 'tab-clothing', className: 'col s12' },
+              React.createElement(ClothingComponent, { dispatcher: this.dispatcher })
+            )
           )
         )
       )
     );
+  },
+  searchFilter: function searchFilter(e) {
+    var _this2 = this;
+
+    e.preventDefault();
+    var searchInput = this.refs.search.getDOMNode().value;
+    this.query.equalTo('productName', searchInput);
+    this.query.find().then(function (product) {
+      _this2.setState({ product: product });
+    }, function (err) {
+      console.log(err);
+    });
+    this.setState({ showResults: true });
   }
 });
 
-},{"./AddProductComponent":179,"./BooksComponent":180,"./ClothingComponent":181,"./ElectronicsComponent":182,"backbone":1,"backbone/node_modules/underscore":2,"jquery":4,"react":178,"react-modal":22}],187:[function(require,module,exports){
+},{"../models/ProductModel":190,"./AddProductComponent":179,"./BooksComponent":180,"./ClothingComponent":181,"./ElectronicsComponent":182,"./SearchComponent":188,"backbone":1,"backbone/node_modules/underscore":2,"jquery":4,"react":178,"react-modal":22}],187:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -34955,6 +34992,81 @@ module.exports = React.createClass({
 
 },{"react":178}],188:[function(require,module,exports){
 'use strict';
+
+var React = require('react');
+module.exports = React.createClass({
+    displayName: 'exports',
+
+    render: function render() {
+        return React.createElement(
+            'div',
+            null,
+            React.createElement(
+                'table',
+                null,
+                React.createElement(
+                    'thead',
+                    null,
+                    React.createElement(
+                        'tr',
+                        null,
+                        React.createElement(
+                            'th',
+                            null,
+                            'Product Name'
+                        ),
+                        React.createElement(
+                            'th',
+                            null,
+                            'Product Description'
+                        ),
+                        React.createElement(
+                            'th',
+                            null,
+                            'Product Price'
+                        ),
+                        React.createElement(
+                            'th',
+                            null,
+                            'Product Type'
+                        )
+                    )
+                ),
+                React.createElement(
+                    'tbody',
+                    null,
+                    React.createElement(
+                        'tr',
+                        null,
+                        React.createElement(
+                            'td',
+                            null,
+                            this.props.result.get('productName')
+                        ),
+                        React.createElement(
+                            'td',
+                            null,
+                            this.props.result.get('description')
+                        ),
+                        React.createElement(
+                            'td',
+                            null,
+                            this.props.result.get('price')
+                        ),
+                        React.createElement(
+                            'td',
+                            null,
+                            this.props.result.get('type')
+                        )
+                    )
+                )
+            )
+        );
+    }
+});
+
+},{"react":178}],189:[function(require,module,exports){
+'use strict';
 var React = require('react');
 var Backbone = require('backbone');
 window.$ = require('jquery');
@@ -34993,14 +35105,14 @@ Backbone.history.start();
 
 React.render(React.createElement(NavigationComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/HomeComponent":183,"./components/LoginComponent":184,"./components/NavigationComponent":185,"./components/ProductsComponent":186,"./components/RegisterComponent":187,"backbone":1,"jquery":4,"react":178}],189:[function(require,module,exports){
+},{"./components/HomeComponent":183,"./components/LoginComponent":184,"./components/NavigationComponent":185,"./components/ProductsComponent":186,"./components/RegisterComponent":187,"backbone":1,"jquery":4,"react":178}],190:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
   className: 'Product'
 });
 
-},{}]},{},[188])
+},{}]},{},[189])
 
 
 //# sourceMappingURL=bundle.js.map
